@@ -415,7 +415,7 @@ preview window."
     (define-key map "f"             'ranger-find-file)
 
 
-    ;; going 
+    ;; going
     (define-key map "gh"            'ranger-go-home)
     (when (eq system-type 'windows-nt)
       (define-key map "gD"          'ranger-show-drives))
@@ -597,11 +597,11 @@ to not replace existing value."
   prev-buffer curr-buffer curr-tab history)
 
 (defun ranger-track-window (window &optional prev curr tab)
-  (let ((new-win 
+  (let ((new-win
          (ranger--track-window
           :prev-buffer prev
           :curr-buffer curr
-          :curr-tab tab 
+          :curr-tab tab
           :history (make-ring ranger-history-length))))
     (r--aput ranger-w-alist
              window
@@ -1468,7 +1468,7 @@ currently selected file in ranger. `IGNORE-HISTORY' will not update history-ring
                        ""))
            (user (nth 2 fattr))
            (file-mount
-            (if sizes 
+            (if sizes
                 (or (let ((index 0)
                           size
                           return)
@@ -1599,7 +1599,7 @@ currently selected file in ranger. `IGNORE-HISTORY' will not update history-ring
              ;; select-window needed for hl-line
              (select-window window)
              (ranger-parent-child-select)
-             (ranger-hide-the-cursor) 
+             (ranger-hide-the-cursor)
              )))
        nil nil 'nomini))
 
@@ -2131,7 +2131,7 @@ fraction of the total frame size"
           (ranger--message
            "Window Check : Ranger window is not the selected window \n** buffer: %s: %s \n** window: %s: %s"
            (current-buffer)
-           major-mode 
+           major-mode
            (selected-window)
            (memq (selected-window) ranger-windows) )
           (ranger-still-dired))))))
@@ -2195,7 +2195,7 @@ fraction of the total frame size"
                      ('roman (format " %s " roman))
                      ('number (format " %s " key))))
          (if (equal key curr)
-             (propertize ret 
+             (propertize ret
                          'face '((t (:inherit 'font-lock-builtin-face
                                               :background "#323232"))))
            (propertize ret
