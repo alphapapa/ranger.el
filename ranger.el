@@ -411,7 +411,6 @@ preview window."
     ;; jumping around
     (define-key map "["             'ranger-prev-parent)
     (define-key map "]"             'ranger-next-parent)
-    (define-key map "}"             'ranger--find-file)
     (define-key map "f"             'ranger-find-file)
 
 
