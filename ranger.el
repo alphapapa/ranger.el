@@ -395,7 +395,7 @@ preview window."
     (define-key map "h"             'ranger-up-directory)
     (define-key map "j"             'ranger-next-file)
     (define-key map "k"             'ranger-prev-file)
-    (define-key map "l"             'ranger-find-file)
+    (define-key map "l"             'ranger--find-file)
     (define-key map (kbd "C-f")     'ranger-page-down)
     (define-key map (kbd "C-b")     'ranger-page-up)
     (define-key map "J"             'ranger-half-page-down)
@@ -405,14 +405,14 @@ preview window."
     (define-key map [left]          'ranger-up-directory)
     (define-key map [down]          'ranger-next-file)
     (define-key map [up]            'ranger-prev-file)
-    (define-key map [right]         'ranger-find-file)
-    (define-key map (kbd "RET")     'ranger-find-file)
+    (define-key map [right]         'ranger--find-file)
+    (define-key map (kbd "RET")     'ranger--find-file)
 
     ;; jumping around
     (define-key map "["             'ranger-prev-parent)
     (define-key map "]"             'ranger-next-parent)
-    (define-key map "}"             'ranger-find-file)
-    (define-key map "f"             'ranger-search-files)
+    (define-key map "}"             'ranger--find-file)
+    (define-key map "f"             'ranger-find-file)
 
 
     ;; going 
@@ -519,7 +519,7 @@ preview window."
     (define-key map "we"            'ranger-open-in-external-app)
 
     ;; mouse
-    (define-key map (kbd  "<mouse-1>") 'ranger-find-file)
+    (define-key map (kbd  "<mouse-1>") 'ranger--find-file)
     (define-key map (kbd  "<mouse-3>") 'ranger-up-directory)
 
     map)
@@ -916,7 +916,7 @@ the idle timer fires are ignored."
   (let ((tab (r--aget ranger-t-alist index)))
     (when tab
       (setq ranger-current-tab index)
-      (ranger-find-file (cdr tab)))))
+      (ranger--find-file (cdr tab)))))
 
 
 ;; searching
@@ -951,7 +951,7 @@ the idle timer fires are ignored."
   (let ((bookmark
          (completing-read "Select from bookmarks: "
                           (ranger--directory-bookmarks) )))
-    (when bookmark (ranger-find-file bookmark))))
+    (when bookmark (ranger--find-file bookmark))))
 
 (defun ranger--directory-bookmarks ()
   "Return a list of all bookmarks linking to a directory."
@@ -990,7 +990,7 @@ ranger-`CHAR'."
          (bookmark-name (concat "ranger-" mark-letter))
          (bookmark-path (bookmark-location bookmark-name)))
     (when (and bookmark-path (file-directory-p bookmark-path))
-      (ranger-find-file bookmark-path))))
+      (ranger--find-file bookmark-path))))
 
 (defun ranger--marks ()
   "Concatenated list of bookmarks."
@@ -1027,7 +1027,7 @@ ranger-`CHAR'."
    (list
     (completing-read "Select from history: "
                      (ranger--ring-elements ranger-history-ring))))
-  (when history (ranger-find-file history)))
+  (when history (ranger--find-file history)))
 
 (defun ranger-jump-history (jump)
   "Move through history ring by increment `jump'"
@@ -1040,7 +1040,7 @@ ranger-`CHAR'."
     (message "ranger-history : %i/%i" (+ 1 goto-idx) (ring-length ranger-history-ring))
     (when (and (not (= goto-idx curr-index)) jump-history)
       (setq ranger-history-index goto-idx)
-      (ranger-find-file jump-history t))))
+      (ranger--find-file jump-history t))))
 
 (defun ranger-next-history ()
   "Move forward in history"
@@ -1213,8 +1213,8 @@ ranger-`CHAR'."
 
 ;; dired navigation
 
-(defun ranger-search-files ()
-  "Search for files / directories in folder."
+(defun ranger-find-file ()
+  "Open a file or go to a directory in current buffer."
   (interactive)
   (cond
    ((featurep 'helm)
@@ -1231,7 +1231,7 @@ ranger-`CHAR'."
         (when (eq system-type 'windows-nt)
           (ranger-show-drives))
       (progn
-        (ranger-find-file parent)
+        (ranger--find-file parent)
         (dired-goto-file current)))))
 
 (defun ranger-save-window-settings (&optional overwrite)
@@ -1248,7 +1248,7 @@ ranger-`CHAR'."
              (cons (current-buffer) nil)
              (null overwrite))))
 
-(defun ranger-find-file (&optional entry ignore-history)
+(defun ranger--find-file (&optional entry ignore-history)
   "Find file in ranger buffer.  `ENTRY' can be used as path or filename, else will use
 currently selected file in ranger. `IGNORE-HISTORY' will not update history-ring on change"
   (interactive)
@@ -1300,7 +1300,7 @@ currently selected file in ranger. `IGNORE-HISTORY' will not update history-ring
                         (ranger-disable))
                       (split-window-below)
                       (windmove-down))))
-                 (ranger-find-file find-name))))))
+                 (ranger--find-file find-name))))))
 
 ;; idea taken from http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html
 (defun ranger-open-in-external-app ()
@@ -1409,7 +1409,7 @@ currently selected file in ranger. `IGNORE-HISTORY' will not update history-ring
   "Move to top of file list"
   (interactive)
   (goto-char (point-max))
-  (ranger-find-file "~/"))
+  (ranger--find-file "~/"))
 
 (defun ranger-next-file ()
   "Move to next file in ranger."
@@ -1533,7 +1533,7 @@ currently selected file in ranger. `IGNORE-HISTORY' will not update history-ring
   ;; allow mouse click to jump to that directory
   (make-local-variable 'mouse-1-click-follows-link)
   (setq mouse-1-click-follows-link nil)
-  (local-set-key (kbd  "<mouse-1>") 'ranger-find-file)
+  (local-set-key (kbd  "<mouse-1>") 'ranger--find-file)
   ;; set header-line
   (when ranger-modify-header
     (setq header-line-format `(:eval (,ranger-header-func)))))
@@ -1638,7 +1638,7 @@ slot)."
     (dired-next-line 1)
     (let ((curfile (dired-get-filename nil t)))
       (if (file-directory-p curfile)
-          (ranger-find-file curfile)
+          (ranger--find-file curfile)
         (dired-next-line -1)))))
 
 (defun ranger-prev-parent ()
@@ -1648,7 +1648,7 @@ slot)."
     (dired-next-line -1)
     (let ((curfile (dired-get-filename nil t)))
       (if (file-directory-p curfile)
-          (ranger-find-file curfile)
+          (ranger--find-file curfile)
         (dired-next-line 1)))))
 
 
@@ -1799,7 +1799,7 @@ is set, show literally instead of actual buffer."
                                                     (interactive)
                                                     (select-window ranger-window)
                                                     (call-interactively
-                                                     'ranger-find-file)))
+                                                     'ranger--find-file)))
 
               (when ranger-modify-header
                 (setq header-line-format `(:eval (,ranger-header-func))))
@@ -1827,7 +1827,7 @@ is set, show literally instead of actual buffer."
     (let ((drive
            (completing-read "Select drive: "
                             (ranger--get-windows-drives))))
-      (when drive (ranger-find-file drive)))))
+      (when drive (ranger--find-file drive)))))
 
 (defun ranger--get-windows-drives ()
   "Return list of drives in MS Windows."
@@ -2363,7 +2363,7 @@ properly provides the modeline in dired mode. "
          (dir (if file (file-name-directory file) default-directory)))
     (when dir
       (r--fset ranger-minimal t)
-      (ranger-find-file dir))))
+      (ranger--find-file dir))))
 
 (defun deer-from-dired ()
   (interactive)
@@ -2387,7 +2387,7 @@ properly provides the modeline in dired mode. "
          (dir (if file (file-name-directory file) default-directory)))
     (when dir
       (r--fset ranger-minimal nil)
-      (ranger-find-file dir))))
+      (ranger--find-file dir))))
 
 (defun ranger-enable ()
   "Interactively enable ranger-mode."
